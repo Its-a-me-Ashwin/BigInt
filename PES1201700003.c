@@ -4,11 +4,28 @@
 #define MAX 2500
 
 
+
+
 int is_digit (const char c) {
     if ((c>='0') && (c<='9')) return 1;
     return 0;
 }
- 
+
+//// zeor bois
+static inline char* init_zero(){
+    char *res = (char *)malloc(sizeof(char)*(2));
+    res[1] = '\0';
+    res[0] = '0';
+    return res;
+}
+
+// helper for gcd 
+static char* gcd_help(char* A,char* B);
+
+
+
+//helper nibba
+static char* intal_divide(const char* A,const char* B);
 void reverse(char *x, int begin, int end)
 {
    char c;
@@ -66,6 +83,28 @@ void swap(char *str1, char *str2)
   str2 = temp; 
   return;
 }   
+
+/// idk da 
+static char * int_to_alpha(long long int a){
+    if(a==0) return init_zero();
+    int p = 0;
+    int x = 1;
+    while((int)(a/x)){
+        x = x * 10;
+        ++p;
+    }
+    char *res = (char *)malloc(sizeof(char)*(p+1));
+    res[p] = '\0';
+    --p;
+    while(p>=0){
+        res[p] = a%10 + '0';
+        a = a/10;
+        --p;
+    }
+    res = eleminateLeadingZeros(res,strlen(res));
+    return res;
+}
+
 
 // Returns the sum of two intals.
 char* intal_add(const char* A,const char* B) 
@@ -287,18 +326,20 @@ char* intal_mod(const char* A,const char* B)
     str2 = eleminateLeadingZeros(str2,strlen(str2));
 
 
-    int len1 = strlen(str1),len2 = strlen(str2);
+    //int len1 = strlen(str1),len2 = strlen(str2);
     char *str = (char*)malloc(sizeof(char)*MAX);
-    int k = 0;
 
-    if (str2[0] == '0') return NULL;
-    if (str1[0] == '0')
+    if (str2[0] == '0' && str2[1] == '\0') return NULL;
+    if (str1[0] == '0' && str1[1] == '\0')
     {
         str[0] = '0';
         str[1] = '\0';
         return str;
     }
-    return NULL;
+
+    char *q = intal_divide(str1,str2);
+    char *val = intal_multiply(q,str2);
+    return intal_diff(str1,val);
 }
 
 
@@ -370,7 +411,11 @@ char* intal_pow(const char* input,unsigned int n)
 // Use Euclid's theorem to not exceed the time limit.
 char* intal_gcd(const char* intal1, const char* intal2)
 {
-    return NULL;
+    char *str1 = (char*)malloc(sizeof(char)*MAX);
+    char *str2 = (char*)malloc(sizeof(char)*MAX);
+    strcpy(str1,intal1);
+    strcpy(str2,intal2);
+    return gcd_help(str1,str2);
 }
 
 
@@ -585,6 +630,7 @@ void intal_sort(char **arr, int n)
 // Eg: Coins = [10, 2, 4, 6, 3, 9, 5] returns 25
 char* coin_row_problem(char **arr, int n)
 {
+    /*
     char **dp = (char**)malloc(sizeof(char*)*(n+1));
     for (int i =0;i<n+1;++i)
     {
@@ -605,6 +651,49 @@ char* coin_row_problem(char **arr, int n)
     strcpy(result,dp[n-1]);
     free(dp);   
     return result;
+    }*/
+    if(n<=0) {
+        return init_zero();
+    }
+    if(n<=2){
+        int m = intal_max(arr,n);
+        char *a = (char *)malloc(sizeof(char)*(strlen(arr[m])+1));
+        strcpy(a,arr[m]);
+        return a;
+    }
+    char *a = (char *)malloc(sizeof(char)*(strlen(arr[0])+1));
+    strcpy(a,arr[0]);
+    int x = intal_compare(a,arr[1]);
+    char *b;
+    if(x < 0){
+        b = (char *)malloc(sizeof(char)*(strlen(arr[1])+1));
+        strcpy(b,arr[1]);
+    }
+    else{
+        b = a;
+    }
+    a = eleminateLeadingZeros(a,strlen(a));
+    b = eleminateLeadingZeros(b,strlen(b));
+
+    for(int i = 2; i < n; ++i){
+        char *ax = intal_add(arr[i], a);
+        if(a!=b)free(a);
+        a = b;
+        int x = intal_compare(ax, b);
+        if(x <= 0){
+            free(ax);
+        }
+        else{
+            b = ax;
+        }
+    }
+    x = intal_compare(a,b);
+    if(x>=0){
+        if(a!=b) free(b);
+        return a;
+    }
+    if(a!=b) free(a);
+    return b;
 }
 
 
@@ -612,67 +701,109 @@ char* coin_row_problem(char **arr, int n)
 
 
 // helper boi for divide
-char* intal_divide(const char* A,const char* B) 
-{
-    char *str1 = (char*)malloc(sizeof(char)*MAX);
-    char *str2 = (char*)malloc(sizeof(char)*MAX);
-    strcpy(str1,A);
-    strcpy(str2,B);
-    char *str = (char*)malloc(sizeof(char)*MAX);
-    int k = 0; 
-    str1 = eleminateLeadingZeros(str1,strlen(str1));
-    str2 = eleminateLeadingZeros(str2,strlen(str2));
-    char zero[MAX] = {'0','\0'};
-    if (intal_compare(zero,str2) == 0)
+static char* intal_divide(const char* intal1, const char* intal2){
+    char *a = (char *)malloc(sizeof(char)*(strlen(intal1)+1));
+    strcpy(a,intal1);
+    char *b = (char *)malloc(sizeof(char)*(strlen(intal2)+1));
+    strcpy(b,intal2);
+    a = eleminateLeadingZeros(a,strlen(a));
+    b = eleminateLeadingZeros(b,strlen(b));
+    if(b[0] == '0' && b[1] == '\0')
     {
+        printf("BS");
         return NULL;
     }
-    if (intal_compare(str1,str2) == -1)
+    if(a[0] == '0' && a[1] == '\0')
     {
-        str[k++] = '0';
-        str[k++] = '\0';
-        return str;
+        free(b);
+        return a;
     }
-    if (intal_compare(str1,str2) == 0)
+
+    int cmp = intal_compare(a,b);
+    if(cmp == 0)
     {
-        str[k++] = '1';
-        str[k++] = '\0';
-        return str;
+        a[0] = '1';
+        a[1] = '\0';
+        free(b);
+        return a;
     }
-    str[k++] = '0';
-    str[k++] = '\0';
-    int n1 = strlen(str1),n2 = strlen(str2),diff;
-    diff = abs(n1-n2);
-    char ten[MAX] = {'1','0','\0'};
-    char factor[MAX];
-    while (diff >= 0)
+    if(cmp < 0)
     {
-        int j = 1;
-        char cj[MAX];
-        sprintf(cj,"%d",j);
-        char *t;
-        t = intal_pow(ten,diff);
-        while(j < 10)
+        a[0] = '0';
+        a[1] = '\0';
+        free(b);
+        return a;
+    }
+
+    int n = strlen(a);
+    char *res = init_zero();
+
+    
+    char *d = init_zero();
+    long long i = 0;
+    long long j = 1;
+    long long lol = 0;
+    char *ten = int_to_alpha(10);
+    while(i<(int)n)
+    {
+        lol = 0;
+        while(intal_compare(d,b)<0 && i<(int)n)
         {
-            sprintf(factor,"%d",j);
-            int t1 = intal_compare(intal_multiply(intal_multiply(cj,t),str2),str1);
-            if (t1 == 0) break;
-            if (t1 == 1) 
-            {
-                j--;
-                break;
-            }
-            ++j;
+            char *t = d;
+            d = intal_multiply(d, ten) ;
+            free(t);
+            t = d;
+            char *x = int_to_alpha(a[i]-'0');
+            d = intal_add(d, x);
+            free(x);free(t);
+            i++;
+            lol++;
         }
-        sprintf(factor,"%d",j);
-        str = intal_add(str,intal_multiply(factor,intal_pow(ten,diff)));
-        diff--;    
+        j = 1;lol--;
+        char *jj = int_to_alpha(j);
+        char *x = intal_multiply(b, jj);
+        while(intal_compare(x, d)<0)
+        {
+            j++;
+            free(jj);free(x);
+            jj = int_to_alpha(j);
+            x = intal_multiply(b, jj);
+        }
+        if(intal_compare(x, d)>0) j--;
+        while(lol>0)
+        {
+            char *ans = res;
+            res = intal_multiply(ans,ten);
+            free(ans);
+            lol--;
+        }
+        free(jj);free(x);
+        char *ans = res;
+        res = intal_multiply(ans,ten);
+        free(ans);ans = res;
+        jj = int_to_alpha(j);
+        res = intal_add(ans, jj);
+        free(ans);
+        char *t = d;
+        x = intal_multiply(b, jj);
+        d = intal_diff(t, x);
+        free(t); free(jj); free(x);
     }
-    return str;
+    res = eleminateLeadingZeros(res,strlen(res));
+    free(a); free(b);free(d); free(ten);
+    return res;
+}
+
+static char* gcd_help(char* A,char* B)
+{
+    if (intal_compare(init_zero(),A) == 0)
+        return B;
+    return gcd_help(intal_mod(B,A),A);
 }
 
 
 
+/*
 int main ()
 {
     char*A = (char*)malloc(sizeof(char)*MAX);
@@ -685,6 +816,7 @@ int main ()
     char *E = intal_multiply(A,B);
     //char *F = intal_pow(A,n);
     char *I = intal_divide(A,B);
+    char *J = intal_mod(A,B);
     //char *G = intal_fibonacci(n);
     //char *H = intal_factorial(n);
     printf("Sum: %s\n",C);
@@ -692,8 +824,9 @@ int main ()
     printf("Mul: %s\n",E);
     //printf("Pow: %s\n",F);
     printf("Div: %s\n",I);
+    printf("Mod: %s\n",J);
     //printf("Fib: %s\n",G);
     //printf("Fac: %s\n",H);
     printf("Copmparisoin: %d\n",intal_compare(A,B));
     return 0;
-}
+}*/
