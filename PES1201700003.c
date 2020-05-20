@@ -6,7 +6,7 @@
 
 
 
-int is_digit (const char c) {
+static int is_digit (const char c) {
     if ((c>='0') && (c<='9')) return 1;
     return 0;
 }
@@ -26,7 +26,7 @@ static char* gcd_help(char* A,char* B);
 
 //helper nibba
 static char* intal_divide(const char* A,const char* B);
-void reverse(char *x, int begin, int end)
+static void reverse(char *x, int begin, int end)
 {
    char c;
    if (begin >= end)
@@ -37,7 +37,7 @@ void reverse(char *x, int begin, int end)
    reverse(x, ++begin, --end);
 }
 
-char* eleminateLeadingZeros (char *str, int n)
+static char* eleminateLeadingZeros (char *str, int n)
 {
     int ind = -1; 
     for (int i = 0; i < n; i++) { 
@@ -76,7 +76,7 @@ char* getChar(unsigned int num)
     return str;
 }
 
-void swap(char *str1, char *str2) 
+static void swap(char *str1, char *str2) 
 { 
   char *temp = str1; 
   str1 = str2; 
@@ -579,7 +579,7 @@ int intal_binsearch(char **arr, int n, const char* key)
 
 
 //helper for sort function
-int partision (char **arr,int low, int high)
+static int partision (char **arr,int low, int high)
 {
     char *pivot = arr[high];
     int i = low - 1;
@@ -602,7 +602,7 @@ int partision (char **arr,int low, int high)
 }
 
 // helper boi
-void quick(char **arr, int low, int high)
+static void quick(char **arr, int low, int high)
 {
     if (low < high)
     {
