@@ -5,11 +5,14 @@
 
 
 
-
+// check if digit
 static int is_digit (const char c) {
     if ((c>='0') && (c<='9')) return 1;
     return 0;
 }
+
+// helper boizzz
+static int bsearchmy (char**, int,int,const char*,int);
 
 //// zeor bois
 static inline char* init_zero(){
@@ -21,8 +24,6 @@ static inline char* init_zero(){
 
 // helper for gcd 
 static char* gcd_help(char* A,char* B);
-
-
 
 //helper nibba
 static char* intal_divide(const char* A,const char* B);
@@ -62,7 +63,7 @@ static char* eleminateLeadingZeros (char *str, int n)
     return str; 
 }
 
-char* getChar(unsigned int num)
+static char* getChar(unsigned int num)
 {
     char *str = (char*)malloc(sizeof(char)*MAX);
     int k = 0;
@@ -72,7 +73,7 @@ char* getChar(unsigned int num)
     }
     str[k++] = '\0';
     reverse(str,0,strlen(str)-1);
-    printf("Con %s\n",str);
+    //printf("Con %s\n",str);
     return str;
 }
 
@@ -151,6 +152,8 @@ char* intal_add(const char* A,const char* B)
             return intal_add(str2,str1);
         }
     }
+    free(str1);
+    free(str2);
     return eleminateLeadingZeros(str,strlen(str)); 
 } 
 
@@ -177,6 +180,8 @@ int intal_compare(const char* A,const char* B)
             if (str2[i] > str1[i]) return -1;
         }
     }
+    free(str1);
+    free(str2);
     return 0;
 }
 
@@ -244,6 +249,8 @@ char* intal_diff(const char* A,const char* B)
     // reverse resultant string 
     reverse(str,0,strlen(str)-1); 
     str = eleminateLeadingZeros(str,strlen(str));
+    free(str1);
+    free(str2);
     return str; 
 }
 
@@ -267,6 +274,8 @@ char* intal_multiply(const char* A,const char* B)
     {
         str[0] = '0';
         str[1] = '\0';
+        free(str1);
+        free(str2);
         return str;
     }
 
@@ -308,6 +317,8 @@ char* intal_multiply(const char* A,const char* B)
     reverse(str,0,strlen(str)-1);
     str = eleminateLeadingZeros(str,strlen(str));
     free(result);
+    free(str1);
+    free(str2);
     return str;
 }
 
@@ -334,12 +345,19 @@ char* intal_mod(const char* A,const char* B)
     {
         str[0] = '0';
         str[1] = '\0';
+        free(str1);
+        free(str2);
         return str;
     }
 
     char *q = intal_divide(str1,str2);
     char *val = intal_multiply(q,str2);
-    return intal_diff(str1,val);
+    free(q);
+    free(str2);
+    char *res = intal_diff(str1,val); 
+    free(str1);
+    free(val);
+    return res;
 }
 
 
@@ -368,17 +386,23 @@ char* intal_pow(const char* input,unsigned int n)
         //printf("A == 0 %s\n",A);
         str[0] = '0';
         str[1] = '\0';
+        free(str1);
+        free(A);
         return str;
     }
     if (str1[0] == '0' && n == 0)
     {
         ///printf("Fuck all");
+        free(str1);
+        free(A);
         return NULL;
     }
 
     if (n == 1)
     {
         //printf("n == 1 %s\n",A);
+        free(str1);
+        free(A);
         return A;
     }
 
@@ -386,6 +410,8 @@ char* intal_pow(const char* input,unsigned int n)
     {
         str[0] = '1';
         str[1] = '\0';
+        free(str1);
+        free(A);
         //printf("n == 0 %s\n",A);
         return str;
     } 
@@ -400,6 +426,8 @@ char* intal_pow(const char* input,unsigned int n)
         A = intal_multiply(A,A);
         n >>= 1;
     }   
+    free(str1);
+    free(A);
     //printf("GAY: %s %s\n",str,A);
     return str;
 }
@@ -439,7 +467,9 @@ char* intal_fibonacci(unsigned int n)
         c = intal_add(a,b); 
         a = b; 
         b = c; 
-    } 
+    }
+    //free(a);
+    //free(c);
     return b; 
 }
 
@@ -470,6 +500,16 @@ char* intal_factorial(unsigned int n)
 // Don't let C(1000,900) take more time than C(1000,500). Time limit may exceed otherwise.
 char* intal_bincoeff(unsigned int n, unsigned int k)
 {
+    if (k > n)
+    {
+        //printf("No NO NO\n");
+        return init_zero();
+        //return NULL;
+    }
+    if (n-k < k)
+    {
+        return intal_bincoeff(n,n-k);
+    }
     char temp[MAX];
     sprintf(temp,"%d",1);
     char **dp = (char**)malloc(sizeof(char*)*(k+1));
@@ -555,24 +595,22 @@ int intal_search(char **arr, int n, const char* key)
 // The implementation should be a O(log n) algorithm.
 int intal_binsearch(char **arr, int n, const char* key)
 {
-    int min = 0;
-    int max = n;
-    int mid;
-    while (min <= max)
+    // help me
+    return bsearchmy(arr,0,(n-1),key,n);
+}
+
+// helper bois 
+int bsearchmy (char **arr, int low, int high,const char* x, int n)
+{
+    if (high >= low)
     {
-        mid = (max+min)/2;   
-        if (intal_compare(key,arr[mid]) == 1)
-        {
-            min = mid + 1;
-        }
-        else if (intal_compare(key,arr[mid]) == -1)
-        {
-            max = mid - 1;
-        }
-        else
-        {
+        int mid = (high+low)/2;
+        if ( (mid == 0 || intal_compare(x,arr[mid-1]) == 1 ) && intal_compare(arr[mid],x) == 0)
             return mid;
-        }
+        else if (intal_compare(x,arr[mid]) == 1)
+            return bsearchmy(arr,(mid+1),high,x,n);
+        else
+            return bsearchmy(arr,low,(mid-1),x,n);
     }
     return -1;
 }
@@ -710,7 +748,7 @@ static char* intal_divide(const char* intal1, const char* intal2){
     b = eleminateLeadingZeros(b,strlen(b));
     if(b[0] == '0' && b[1] == '\0')
     {
-        printf("BS");
+        printf("Shyit");
         return NULL;
     }
     if(a[0] == '0' && a[1] == '\0')
