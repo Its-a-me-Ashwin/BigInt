@@ -62,7 +62,7 @@ static char* eleminateLeadingZeros (char *str, int n)
     //printf("Eleminate leading zeros: %s\n",str);
     return str; 
 }
-
+/*
 static char* getChar(unsigned int num)
 {
     char *str = (char*)malloc(sizeof(char)*MAX);
@@ -76,6 +76,7 @@ static char* getChar(unsigned int num)
     //printf("Con %s\n",str);
     return str;
 }
+*/
 
 static void swap(char *str1, char *str2) 
 { 
