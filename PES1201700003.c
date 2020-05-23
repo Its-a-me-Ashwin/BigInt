@@ -1,22 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX 2500
+#define MAX 1250
 
 
-
+static int checkIfZero (const char *A)
+{   
+    if (A[0] == '0' && A[1] == '\0') return 1;
+    else return 0;
+}
 // check if digit
+/*
 static int is_digit (const char c) {
     if ((c>='0') && (c<='9')) return 1;
     return 0;
 }
-
+*/
 // helper boizzz
 static int bsearchmy (char**, int,int,const char*,int);
 
 //// zeor bois
 static inline char* init_zero(){
-    char *res = (char *)malloc(sizeof(char)*(2));
+    char *res = (char*)malloc(sizeof(char)*MAX);
     res[1] = '\0';
     res[0] = '0';
     return res;
@@ -26,7 +31,7 @@ static inline char* init_zero(){
 static char* gcd_help(char* A,char* B);
 
 //helper nibba
-static char* intal_divide(const char* A,const char* B);
+static char* intal_divide(char *f, char *l, char *a, char *b);
 static void reverse(char *x, int begin, int end)
 {
    char c;
@@ -77,7 +82,7 @@ static char* getChar(unsigned int num)
     return str;
 }
 */
-
+/*
 static void swap(char *str1, char *str2) 
 { 
   char *temp = str1; 
@@ -85,8 +90,9 @@ static void swap(char *str1, char *str2)
   str2 = temp; 
   return;
 }   
-
+*/
 /// idk da 
+/*
 static char * int_to_alpha(long long int a){
     if(a==0) return init_zero();
     int p = 0;
@@ -95,7 +101,7 @@ static char * int_to_alpha(long long int a){
         x = x * 10;
         ++p;
     }
-    char *res = (char *)malloc(sizeof(char)*(p+1));
+    char *res = (char *)malloc(sizeof(char)*MAX);
     res[p] = '\0';
     --p;
     while(p>=0){
@@ -106,7 +112,7 @@ static char * int_to_alpha(long long int a){
     res = eleminateLeadingZeros(res,strlen(res));
     return res;
 }
-
+*/
 
 // Returns the sum of two intals.
 char* intal_add(const char* A,const char* B) 
@@ -117,6 +123,54 @@ char* intal_add(const char* A,const char* B)
     strcpy(str2,B);
     str1 = eleminateLeadingZeros(str1,strlen(str1));
     str2 = eleminateLeadingZeros(str2,strlen(str2));
+    int n = strlen(str1);
+    int m = strlen(str2);
+    int o;
+    if (n > m) o = n +2;
+    else o = m+2;
+
+    char *res = (char*)malloc(sizeof(char)*MAX);
+    res[0] = '0';res[1] = '0';res[2] = '0';
+    res[o-1] = '\0';
+    int carry = 0;
+    int i = n-1;
+    int j = m-1;
+    int k = o-2;
+    int add;
+    while(i>=0 && j>=0)
+    {
+        add = str1[i]-'0' + str2[j] - '0' + carry;
+        carry = add / 10;
+        add = add % 10;
+        res[k] = add + '0';
+        --k;--i;--j;
+    }
+    while(i>=0)
+    {
+        add = str1[i] - '0' + carry;
+        carry = add / 10;
+        add = add % 10;
+        res[k] = add + '0';
+        --k;--i;
+    }
+    while(j>=0)
+    {
+        add = str2[j] - '0' + carry;
+        carry = add / 10;
+        add = add % 10;
+        res[k] = add + '0';
+        --k;--j;
+    }
+    if(carry)
+    {
+        res[k] = carry + '0';
+    }
+    res = eleminateLeadingZeros(res,strlen(res));
+    free(str2);
+    free(str1);
+    return res;
+    
+    /*
     if (strlen(str1) > strlen(str2)) 
         swap(str1, str2);  
     char *str = (char*)malloc(sizeof(char)*MAX);
@@ -150,12 +204,18 @@ char* intal_add(const char* A,const char* B)
     {
         if (!is_digit(str[j]))
         {
-            return intal_add(str2,str1);
+            char *death = intal_add(str2,str1);
+            free(str1);
+            free(str2);
+            free(str);
+            return eleminateLeadingZeros(death,strlen(death));
         }
     }
     free(str1);
     free(str2);
-    return eleminateLeadingZeros(str,strlen(str)); 
+    str = eleminateLeadingZeros(str,strlen(str)); 
+    return str;
+    */
 } 
 
 
@@ -171,14 +231,34 @@ int intal_compare(const char* A,const char* B)
     str1 = eleminateLeadingZeros(str1,strlen(str1));
     str2 = eleminateLeadingZeros(str2,strlen(str2));
     int n1 = strlen(str1),n2 = strlen(str2);
-    if (n1 > n2) return 1;
-    else if (n2 > n1) return -1;
+    if (n1 > n2)
+    {
+        free(str1);
+        free(str2);
+        return 1;
+    } 
+    else if (n2 > n1)
+    {
+        free(str1);
+        free(str2);
+        return -1;
+    } 
     else
     {
         for (int i =0;i < n1;++i)
         {
-            if (str1[i] > str2[i]) return 1;
-            if (str2[i] > str1[i]) return -1;
+            if (str1[i] > str2[i])
+            {
+                free(str1);
+                free(str2);
+                return 1;
+            } 
+            if (str2[i] > str1[i])
+            {
+                free(str1);
+                free(str2);
+                return -1;
+            } 
         }
     }
     free(str1);
@@ -196,12 +276,13 @@ char* intal_diff(const char* A,const char* B)
     
     str1 = eleminateLeadingZeros(str1,strlen(str1));
     str2 = eleminateLeadingZeros(str2,strlen(str2));
-
-    // Before proceeding further, make sure str1 
-    // is not smaller 
     if (intal_compare(str1, str2) == -1) 
-        return intal_diff(str2,str1); 
-  
+    {   
+        char *t = intal_diff(str2,str1); 
+        free(str1);
+        free(str2);
+        return t;
+    }
     // Take an empty string for storing result 
     char *str = (char*)malloc(sizeof(char)*MAX);
     int k = 0; 
@@ -341,7 +422,13 @@ char* intal_mod(const char* A,const char* B)
     //int len1 = strlen(str1),len2 = strlen(str2);
     char *str = (char*)malloc(sizeof(char)*MAX);
 
-    if (str2[0] == '0' && str2[1] == '\0') return NULL;
+    if (str2[0] == '0' && str2[1] == '\0') 
+    {
+        free(str1);
+        free(str2); 
+        free(str); 
+        return NULL;
+    }
     if (str1[0] == '0' && str1[1] == '\0')
     {
         str[0] = '0';
@@ -351,13 +438,16 @@ char* intal_mod(const char* A,const char* B)
         return str;
     }
 
-    char *q = intal_divide(str1,str2);
+    char *z = init_zero();
+    char *q = intal_divide(z,str1,str1,str2);
     char *val = intal_multiply(q,str2);
     free(q);
     free(str2);
     char *res = intal_diff(str1,val); 
     free(str1);
     free(val);
+    free(str);
+    free(z);
     return res;
 }
 
@@ -396,6 +486,7 @@ char* intal_pow(const char* input,unsigned int n)
         ///printf("Fuck all");
         free(str1);
         free(A);
+        free(str);
         return NULL;
     }
 
@@ -403,7 +494,7 @@ char* intal_pow(const char* input,unsigned int n)
     {
         //printf("n == 1 %s\n",A);
         free(str1);
-        free(A);
+        free(str);
         return A;
     }
 
@@ -418,13 +509,18 @@ char* intal_pow(const char* input,unsigned int n)
     } 
     str[0] = '1';
     str[1] = '\0';
+    char *t;
     while (n > 0)
     {
         if (n & 1)
         {
-            str = intal_multiply(str,A);
+            t = intal_multiply(str,A);
+            strcpy(str,t);
+            free(t);
         }
-        A = intal_multiply(A,A);
+        t = intal_multiply(A,A);
+        strcpy(A,t);
+        free(t);
         n >>= 1;
     }   
     free(str1);
@@ -442,9 +538,22 @@ char* intal_gcd(const char* intal1, const char* intal2)
 {
     char *str1 = (char*)malloc(sizeof(char)*MAX);
     char *str2 = (char*)malloc(sizeof(char)*MAX);
+    char *result = (char*)malloc(sizeof(char)*MAX);
+    char *y;
     strcpy(str1,intal1);
     strcpy(str2,intal2);
-    return gcd_help(str1,str2);
+    if (checkIfZero(str1) && checkIfZero(str2))
+    {
+        free(str1);
+        free(str2);
+        free(result);
+        return init_zero();
+    }
+    y = gcd_help(str1,str2);
+    strcpy(result,y);
+    free(str1);
+    free(str2); // y is akready freed
+    return result;
 }
 
 
@@ -462,14 +571,23 @@ char* intal_fibonacci(unsigned int n)
     b[1] = '\0';
     
     if( n == 0) 
+    {
+        free(b);
         return a; 
+    }
+    if( n == 1) 
+    {
+        free(a);
+        return b; 
+    }
     for (int i = 2; i <= n; i++) 
     { 
         c = intal_add(a,b); 
-        a = b; 
-        b = c; 
+        strcpy(a,b); 
+        strcpy(b,c); 
+        free(c);
     }
-    //free(a);
+    free(a);
     //free(c);
     return b; 
 }
@@ -478,15 +596,22 @@ char* intal_fibonacci(unsigned int n)
 char* intal_factorial(unsigned int n)
 {
     char *str = (char*)malloc(sizeof(char)*MAX);
+    //char *prev;
     char temp[MAX];
+    char *t;
     str[0] = '1';
     str[1] = '\0';
-    if (n == 1 || n == 0) return str;
+    if (n == 1 || n == 0)
+    {
+        return str;
+    } 
     while (n != 0)
     {
         sprintf(temp,"%d",n);
         //printf("G:%s\n",temp);
-        str = intal_multiply(str,temp);
+        t = intal_multiply(str,temp);
+        strcpy(str,t);
+        free(t);
         n--;
     }
     return str;
@@ -501,6 +626,7 @@ char* intal_factorial(unsigned int n)
 // Don't let C(1000,900) take more time than C(1000,500). Time limit may exceed otherwise.
 char* intal_bincoeff(unsigned int n, unsigned int k)
 {
+    char *z;
     if (k > n)
     {
         //printf("No NO NO\n");
@@ -524,10 +650,22 @@ char* intal_bincoeff(unsigned int n, unsigned int k)
         for (unsigned int j = i>k? k : i;j>0;--j)
         {
             if (j ==0 || j== i) strcpy(dp[j],temp);
-            else dp[j] = intal_add(dp[j-1],dp[j]);
+            else 
+            {
+                z = intal_add(dp[j-1],dp[j]);
+                strcpy(dp[j],z);
+                free(z);
+            }
         }
     }
-    return dp[k];
+    char *result = (char*)malloc(sizeof(char)*MAX);
+    strcpy(result,dp[k]);
+    for (int i =0;i<k+1;++i)
+    {
+        free(dp[i]);
+    }
+    free(dp);
+    return result;
 }
 
 
@@ -548,6 +686,7 @@ int intal_max(char **arr, int n)
             res = i;
         }
     }
+    free(str);
     return res;
 }
 
@@ -571,6 +710,7 @@ int intal_min(char **arr, int n)
             res = i;
         }
     }
+    free(str);
     return res;
 }
 
@@ -696,16 +836,16 @@ char* coin_row_problem(char **arr, int n)
     }
     if(n<=2){
         int m = intal_max(arr,n);
-        char *a = (char *)malloc(sizeof(char)*(strlen(arr[m])+1));
+        char *a = (char *)malloc(sizeof(char)*MAX);
         strcpy(a,arr[m]);
         return a;
     }
-    char *a = (char *)malloc(sizeof(char)*(strlen(arr[0])+1));
+    char *a = (char *)malloc(sizeof(char)*MAX);
     strcpy(a,arr[0]);
     int x = intal_compare(a,arr[1]);
     char *b;
     if(x < 0){
-        b = (char *)malloc(sizeof(char)*(strlen(arr[1])+1));
+        b = (char *)malloc(sizeof(char)*MAX);
         strcpy(b,arr[1]);
     }
     else{
@@ -740,103 +880,63 @@ char* coin_row_problem(char **arr, int n)
 
 
 // helper boi for divide
-static char* intal_divide(const char* intal1, const char* intal2){
-    char *a = (char *)malloc(sizeof(char)*(strlen(intal1)+1));
-    strcpy(a,intal1);
-    char *b = (char *)malloc(sizeof(char)*(strlen(intal2)+1));
-    strcpy(b,intal2);
-    a = eleminateLeadingZeros(a,strlen(a));
-    b = eleminateLeadingZeros(b,strlen(b));
-    if(b[0] == '0' && b[1] == '\0')
-    {
-        printf("Shyit");
-        return NULL;
+static char* intal_divide(char *f, char *l, char *a, char *b){
+    char * z = intal_diff(l, f);
+    char *ff = (char *)malloc(sizeof(char)*(strlen(l)+1));
+    strcpy(ff,f);
+    if(z[0] == '0'){
+        free(z);
+        return ff;
     }
-    if(a[0] == '0' && a[1] == '\0')
-    {
-        free(b);
-        return a;
-    }
-
-    int cmp = intal_compare(a,b);
-    if(cmp == 0)
-    {
-        a[0] = '1';
-        a[1] = '\0';
-        free(b);
-        return a;
-    }
-    if(cmp < 0)
-    {
-        a[0] = '0';
-        a[1] = '\0';
-        free(b);
-        return a;
-    }
-
-    int n = strlen(a);
-    char *res = init_zero();
-
-    
-    char *d = init_zero();
-    long long i = 0;
-    long long j = 1;
-    long long lol = 0;
-    char *ten = int_to_alpha(10);
-    while(i<(int)n)
-    {
-        lol = 0;
-        while(intal_compare(d,b)<0 && i<(int)n)
+    int zz = strlen(z);
+    if(zz == 1){
+        if(z[0] == '1')
         {
-            char *t = d;
-            d = intal_multiply(d, ten) ;
-            free(t);
-            t = d;
-            char *x = int_to_alpha(a[i]-'0');
-            d = intal_add(d, x);
-            free(x);free(t);
-            i++;
-            lol++;
+            free(z);
+            return ff;
         }
-        j = 1;lol--;
-        char *jj = int_to_alpha(j);
-        char *x = intal_multiply(b, jj);
-        while(intal_compare(x, d)<0)
-        {
-            j++;
-            free(jj);free(x);
-            jj = int_to_alpha(j);
-            x = intal_multiply(b, jj);
-        }
-        if(intal_compare(x, d)>0) j--;
-        while(lol>0)
-        {
-            char *ans = res;
-            res = intal_multiply(ans,ten);
-            free(ans);
-            lol--;
-        }
-        free(jj);free(x);
-        char *ans = res;
-        res = intal_multiply(ans,ten);
-        free(ans);ans = res;
-        jj = int_to_alpha(j);
-        res = intal_add(ans, jj);
-        free(ans);
-        char *t = d;
-        x = intal_multiply(b, jj);
-        d = intal_diff(t, x);
-        free(t); free(jj); free(x);
+        z[0] = '1';
+        z[1] = '\0';
     }
-    res = eleminateLeadingZeros(res,strlen(res));
-    free(a); free(b);free(d); free(ten);
-    return res;
+    else{
+        z[zz-1] = '\0';
+    }
+    while(intal_compare(ff,l)<=0){
+        char *x1 = intal_multiply(ff, b);
+        char *ll = intal_add(ff, z);
+        char *x2 = intal_multiply(ll, b);
+        int aa = intal_compare(a, x1);
+        int bb = intal_compare(a, x2);
+        if(aa == 0){
+            free(z); free(ll), free(x1); free(x2);
+            return ff;
+        }
+        else if(bb == 0){
+            free(z); free(ff), free(x1); free(x2);
+            return ll;
+        }
+        else if(aa >= 0 && bb <=0){
+            char *res = intal_divide(ff,ll,a,b);
+            free(z); free(ff), free(x1); free(x2);free(ll);
+            return res;    
+        }
+        free(ff);
+        ff = ll;
+        free(x1);free(x2);
+    }
+    free(z);
+    return ff;
 }
 
 static char* gcd_help(char* A,char* B)
 {
-    if (intal_compare(init_zero(),A) == 0)
+    if (checkIfZero(A) == 1)
         return B;
+    /*
+    char * C = intal_mod(B,A);
+    char * D = gcd_help(C,A); 
+    free(C);
+    */
     return gcd_help(intal_mod(B,A),A);
 }
 
@@ -847,25 +947,25 @@ int main ()
 {
     char*A = (char*)malloc(sizeof(char)*MAX);
     char*B = (char*)malloc(sizeof(char)*MAX);
-    //unsigned int n;
+    unsigned int n;
     scanf("%s %s",A,B);
-    //scanf("%d",&n);
+    scanf("%d",&n);
     char *C = intal_add(A,B);
     char *D = intal_diff(A,B);
     char *E = intal_multiply(A,B);
-    //char *F = intal_pow(A,n);
+    char *F = intal_pow(A,n);
     char *I = intal_divide(A,B);
     char *J = intal_mod(A,B);
-    //char *G = intal_fibonacci(n);
-    //char *H = intal_factorial(n);
+    char *G = intal_fibonacci(n);
+    char *H = intal_factorial(n);
     printf("Sum: %s\n",C);
     printf("Dif: %s\n",D);
     printf("Mul: %s\n",E);
-    //printf("Pow: %s\n",F);
+    printf("Pow: %s\n",F);
     printf("Div: %s\n",I);
     printf("Mod: %s\n",J);
-    //printf("Fib: %s\n",G);
-    //printf("Fac: %s\n",H);
+    printf("Fib: %s\n",G);
+    printf("Fac: %s\n",H);
     printf("Copmparisoin: %d\n",intal_compare(A,B));
     return 0;
 }*/
