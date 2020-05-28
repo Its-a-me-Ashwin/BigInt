@@ -940,9 +940,74 @@ static char* gcd_help(char* A,char* B)
     return gcd_help(intal_mod(B,A),A);
 }
 
+char* left_shift (const char *A,unsigned int n)
+{
+    if (n < 0)
+    {
+        return NULL;
+    }
+    char *str1 = (char*)malloc(sizeof(char)*MAX);
+    strcpy(str1,A);
+    int k = strlen(str1);
+    for (int i =0;i<n;++i)
+    {
+        str1[k++] = '0';
+        if (k >= MAX)
+        {
+            free(str1);
+            return NULL;
+        }
+    }
+    str1[k++] = '\0';
+    return str1;
+}
 
 
-/*
+char* right_shift (const char *A,unsigned int n)
+{
+    
+    if (n < 0)
+    {
+        return NULL;
+    }
+    char *str1 = (char*)malloc(sizeof(char)*MAX);
+    strcpy(str1,A);
+    int k = strlen(str1) - 1;
+    for (int i =0;i<n;++i)
+    {
+        str1[k--] = '\0';
+        if (k < 0)
+        {
+            str1[0] = '0';
+            str1[1] = '\0';
+            return str1;
+        }
+    }
+    return str1;
+}
+
+
+char* change_base (const char* inta, int base)
+{
+    switch (base)
+    {
+    case 2: char *binary = (char*)malloc(sizeof(char)*MAX);
+            int k=0;
+            char *temp = (char*)malloc(sizeof(char)*MAX);
+            strcpy(temp,inta);
+            char two[MAX] = "2";
+            while (checkIfZero(temp))
+            {
+                binary[k++] = intal_mod(temp,two)[0];
+            }
+            binary[k++] = '\0';
+            break;
+    default:
+        break;
+    }
+}
+
+
 int main ()
 {
     char*A = (char*)malloc(sizeof(char)*MAX);
@@ -954,7 +1019,7 @@ int main ()
     char *D = intal_diff(A,B);
     char *E = intal_multiply(A,B);
     char *F = intal_pow(A,n);
-    char *I = intal_divide(A,B);
+    char *I = right_shift(A,n);
     char *J = intal_mod(A,B);
     char *G = intal_fibonacci(n);
     char *H = intal_factorial(n);
@@ -962,10 +1027,11 @@ int main ()
     printf("Dif: %s\n",D);
     printf("Mul: %s\n",E);
     printf("Pow: %s\n",F);
-    printf("Div: %s\n",I);
+    printf("right: %s\n",I);
     printf("Mod: %s\n",J);
     printf("Fib: %s\n",G);
     printf("Fac: %s\n",H);
+    printf("Binary: %s\n",change_base(A,2));
     printf("Copmparisoin: %d\n",intal_compare(A,B));
     return 0;
-}*/
+}
