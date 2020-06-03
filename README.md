@@ -84,12 +84,3 @@ requires only O(1) extra space. The recursive code was abandoned as it took tooo
 * Make the lenght of the strings variable based on the size of the number. This can be done by making a new data structure similar to string which is 
 implemented as a dynamic array so memory is not wasted for small numbers. This way most of the memory which is currently being wasted will no longer be wasted.
 * Currently all memory leaks have been spotted and avoided.
-
-
-    © 2020 GitHub, Inc.
-    Terms
-    Privacy
-    Security
-    Status
-    Help
-
