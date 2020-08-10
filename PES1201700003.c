@@ -1007,7 +1007,7 @@ char* change_base (const char* inta, int base)
     }
 }
 
-
+/*
 int main ()
 {
     char*A = (char*)malloc(sizeof(char)*MAX);
@@ -1035,3 +1035,4 @@ int main ()
     printf("Copmparisoin: %d\n",intal_compare(A,B));
     return 0;
 }
+*/
